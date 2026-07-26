@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary-900: #7a1d17;
+  --color-primary-700: #b3261e;
+  --color-primary-500: #c0392b;
+  --color-primary-300: #e08880;
+  --color-primary-100: #fbeae8;
+
+  --color-success: #2e7d5b;
+  --color-warning: #b8860b;
+  --color-error: #e5484d;
+  --color-info: #3b6ea5;
+
+  --color-neutral-900: #1c2126;
+  --color-neutral-600: #5b6570;
+  --color-neutral-300: #d8dde3;
+  --color-neutral-100: #f4f6f8;
+  --color-white: #ffffff;
+
+  --background: var(--color-neutral-100);
+  --foreground: var(--color-neutral-900);
+  --surface: var(--color-white);
+  --border-color: var(--color-neutral-300);
+  --subtext: var(--color-neutral-600);
+  --accent: var(--color-primary-500);
+  --accent-strong: var(--color-primary-900);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #14181c;
+    --foreground: #e6e9ec;
+    --surface: #1e2429;
+    --border-color: #2c333a;
+    --subtext: #9aa5af;
+    --accent: #d97066;
+    --accent-strong: #f0a99f;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border-color);
+  --color-subtext: var(--subtext);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+
+  --color-primary-900: var(--color-primary-900);
+  --color-primary-700: var(--color-primary-700);
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-100: var(--color-primary-100);
+
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
+  --color-info: var(--color-info);
+
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-manrope);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-DEFAULT: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), sans-serif;
+}
+
+/* カンバンボードの横スクロールバーを常時表示
+   Chrome 121+ は scrollbar-width が設定されると ::-webkit-scrollbar を無視するため
+   Firefox 専用で分離し、webkit ブラウザは ::-webkit-scrollbar のみを使う */
+@supports (-moz-appearance: none) {
+  .kanban-columns {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-neutral-600) transparent;
+  }
+  @media (prefers-color-scheme: dark) {
+    .kanban-columns {
+      scrollbar-color: #4a5568 transparent;
+    }
+  }
+}
+
+.kanban-columns::-webkit-scrollbar {
+  height: 8px;
+}
+.kanban-columns::-webkit-scrollbar-track {
+  background: transparent;
+}
+.kanban-columns::-webkit-scrollbar-thumb {
+  background: rgba(91, 101, 112, 0.55);
+  border-radius: 4px;
+}
+.kanban-columns::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-900);
+}
+
+@media (prefers-color-scheme: dark) {
+  .kanban-columns::-webkit-scrollbar-thumb {
+    background: #4a5568;
+  }
+  .kanban-columns::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+}
+
+/* 右端に続きコンテンツがあることを示すフェード */
+.kanban-board-wrapper {
+  position: relative;
+}
+.kanban-board-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 8px; /* スクロールバー分を除く */
+  width: 48px;
+  background: linear-gradient(to right, transparent, var(--background));
+  pointer-events: none;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.kanban-board-wrapper.has-overflow::after {
+  opacity: 1;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-manrope), sans-serif;
+}

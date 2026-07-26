@@ -1,0 +1,15 @@
+.git
+.gitignore
+.claude
+.craft
+.mise.toml
+.mcp.json
+node_modules
+.next
+.env.local
+data
+scripts
+docs
+*.md
+*.tsbuildinfo
+*.db

@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${EXTERNAL_PORT:-8080}:8080"
+    env_file:
+      - .env.local
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
