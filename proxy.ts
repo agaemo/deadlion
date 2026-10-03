@@ -8,6 +8,10 @@ export const proxy = auth((req) => {
   const isChangePasswordPage = pathname === "/change-password";
   const isAdminPage = pathname.startsWith("/admin");
 
+  if (pathname === "/api/health") {
+    return NextResponse.next();
+  }
+
   if (!isLoggedIn && !isLoginPage) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
