@@ -24,10 +24,19 @@ pnpm は mise 経由。`~/.local/share/mise/shims/pnpm` にある。
 
 ```bash
 make test         # vitest（サービス・リポジトリ・認証の単体テスト）
+make e2e          # Playwright E2E テスト（Docker 起動中に実行）
+make test-all     # unit + E2E を連続実行
 make lint         # oxlint
 make typecheck    # 型チェック（tsc --noEmit）
 make db-generate  # Drizzle マイグレーション生成
 ```
+
+### E2E テストの注意点
+
+- 実行前に Docker を起動しておくこと（`make build` または `make up`）
+- 初回実行時に Playwright が `e2e/.auth.json` へログインセッションをキャッシュする
+- ドラッグ&ドロップは Playwright では確認不可のため手動確認が必要（CLAUDE.md 末尾参照）
+- E2E テスト用の認証情報は `e2e/global-setup.ts` に記載（`admin` / `dev-password-123`）
 
 ## アーキテクチャ概要
 
