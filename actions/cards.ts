@@ -1,16 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { cardService } from "@/lib/services/registry";
 import type { CardWithLabels, Comment, Result } from "@/lib/types";
 import { createCardSchema, moveCardSchema, updateCardSchema } from "@/lib/validation/card";
-
-function revalidateAll() {
-  revalidatePath("/");
-  revalidatePath("/tasks");
-  revalidatePath("/gantt");
-}
+import { revalidateAll } from "./_revalidate";
 
 export async function createCard(input: unknown): Promise<Result<CardWithLabels>> {
   await requireAuth();

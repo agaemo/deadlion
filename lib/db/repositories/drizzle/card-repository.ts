@@ -49,9 +49,6 @@ export function createCardRepository(
         .get();
     },
     update(id, input) {
-      const existing = db.select().from(cards).where(eq(cards.id, id)).get();
-      if (!existing) return undefined;
-
       const { labelNames: _labelNames, ...cardFields } = input;
       return db
         .update(cards)
