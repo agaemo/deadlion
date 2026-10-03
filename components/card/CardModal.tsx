@@ -102,7 +102,7 @@ export function CardModal({
       targetDate: form.targetDate || undefined,
       personMonth: form.personMonth ? Number(form.personMonth) : undefined,
       startDate: form.startDate || undefined,
-      color: form.color ?? undefined,
+      color: form.color,
       labelNames: form.labelNames,
     };
 

@@ -1,4 +1,4 @@
-.PHONY: up build down logs dev test lint typecheck db-generate
+.PHONY: up build down logs dev test e2e lint typecheck db-generate
 
 up:
 	docker compose up -d
@@ -23,6 +23,9 @@ lint:
 
 typecheck:
 	mise exec -- pnpm exec tsc --noEmit
+
+e2e:
+	mise exec -- pnpm exec playwright test
 
 db-generate:
 	mise exec -- pnpm run db:generate

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   DndContext,
@@ -95,6 +95,15 @@ export function KanbanBoard({
   const [, startTransition] = useTransition();
   const [hasOverflow, setHasOverflow] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // router.refresh() で key が変わりリマウントされるため、sessionStorage でスクロール位置を引き継ぐ
+  useLayoutEffect(() => {
+    const saved = sessionStorage.getItem("kanbanScrollLeft");
+    if (saved && scrollRef.current) {
+      scrollRef.current.scrollLeft = Number(saved);
+      sessionStorage.removeItem("kanbanScrollLeft");
+    }
+  }, []);
 
   // router.refresh() 後に initialColumns が更新されたら、ドラッグ中でなければ同期する
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -416,6 +425,13 @@ export function KanbanBoard({
     router.refresh();
   }
 
+  function refreshPreservingScroll() {
+    if (scrollRef.current && scrollRef.current.scrollLeft > 0) {
+      sessionStorage.setItem("kanbanScrollLeft", String(scrollRef.current.scrollLeft));
+    }
+    startTransition(() => router.refresh());
+  }
+
   function openCardModal(cardId?: number, defaultColumnId?: number) {
     setModalState({ open: true, cardId, defaultColumnId });
   }
@@ -516,7 +532,7 @@ export function KanbanBoard({
         onClose={closeCardModal}
         cardId={modalState.cardId}
         defaultColumnId={modalState.defaultColumnId}
-        onSaved={() => router.refresh()}
+        onSaved={refreshPreservingScroll}
       />
     </div>
   );
