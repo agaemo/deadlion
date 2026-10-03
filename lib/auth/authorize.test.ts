@@ -48,7 +48,7 @@ describe("createAuthorize", () => {
 
     const result = authorize("taro", "correct-password");
 
-    expect(result).toEqual({ id: String(userId), name: "taro" });
+    expect(result).toEqual({ id: String(userId), name: "taro", isAdmin: false, mustChangePassword: false });
   });
 
   it("存在しないusernameの場合、nullを返す", () => {
