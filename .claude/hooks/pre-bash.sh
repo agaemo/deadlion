@@ -17,3 +17,5 @@ fi
 echo "$input" | grep -qE 'git[[:space:]]+reset[[:space:]]+--hard' && block 'git reset --hard'
 echo "$input" | grep -qiE 'DROP[[:space:]]+TABLE' && block 'DROP TABLE'
 echo "$input" | grep -qE '>[[:space:]]*\.env' && block '> .env'
+
+exit 0
