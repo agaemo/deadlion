@@ -1,6 +1,7 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import type { createDb } from "../../index";
 import { cardLabels, labels } from "../../schema";
+import type { Label } from "@/lib/types";
 import type { LabelRepository } from "../interfaces/label-repository";
 
 export function createLabelRepository(
@@ -21,6 +22,22 @@ export function createLabelRepository(
         .innerJoin(labels, eq(cardLabels.labelId, labels.id))
         .where(eq(cardLabels.cardId, cardId))
         .all();
+    },
+    findByCardIds(cardIds) {
+      const result = new Map<number, Label[]>();
+      if (cardIds.length === 0) return result;
+      const rows = db
+        .select({ cardId: cardLabels.cardId, id: labels.id, name: labels.name })
+        .from(cardLabels)
+        .innerJoin(labels, eq(cardLabels.labelId, labels.id))
+        .where(inArray(cardLabels.cardId, cardIds))
+        .all();
+      for (const row of rows) {
+        const list = result.get(row.cardId) ?? [];
+        list.push({ id: row.id, name: row.name });
+        result.set(row.cardId, list);
+      }
+      return result;
     },
     setLabelsForCard(cardId, labelNames) {
       db.delete(cardLabels).where(eq(cardLabels.cardId, cardId)).run();
