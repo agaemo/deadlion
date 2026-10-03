@@ -19,12 +19,21 @@ export function createBoardService(deps: Deps) {
       });
     }
 
-    return deps.columnRepo.findAll().map((column) => ({
+    const columns = deps.columnRepo.findAll();
+    const allCards = deps.cardRepo.findAll();
+    const cardIds = allCards.map((c) => c.id);
+    const labelsByCardId = deps.labelRepo.findByCardIds(cardIds);
+
+    const cardsByColumnId = new Map<number, CardWithLabels[]>();
+    for (const card of allCards) {
+      const list = cardsByColumnId.get(card.columnId) ?? [];
+      list.push({ ...card, labels: labelsByCardId.get(card.id) ?? [] });
+      cardsByColumnId.set(card.columnId, list);
+    }
+
+    return columns.map((column) => ({
       ...column,
-      cards: deps.cardRepo.findByColumnId(column.id).map((card) => ({
-        ...card,
-        labels: deps.labelRepo.findByCardId(card.id),
-      })),
+      cards: cardsByColumnId.get(column.id) ?? [],
     }));
   }
 
