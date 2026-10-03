@@ -8,7 +8,7 @@ export const createCardSchema = z.object({
   targetDate: z.string().optional(),
   personMonth: z.number().optional(),
   startDate: z.string().optional(),
-  color: z.string().optional(),
+  color: z.string().nullable().optional(),
   labelNames: z.array(z.string()).optional(),
 });
 
