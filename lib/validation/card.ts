@@ -12,7 +12,13 @@ export const createCardSchema = z.object({
   labelNames: z.array(z.string()).optional(),
 });
 
-export const updateCardSchema = createCardSchema.omit({ columnId: true }).partial();
+// updateCardSchema は color のバリデーションを緩める。
+// createCardSchema の hex 制約はこの PR 以前のデータには存在しなかったため、
+// 既存レコードを編集できなくなる事態を防ぐ
+export const updateCardSchema = createCardSchema
+  .omit({ columnId: true })
+  .partial()
+  .extend({ color: z.string().nullable().optional() });
 
 export const moveCardSchema = z.object({
   id: z.number().int().positive(),

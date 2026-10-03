@@ -50,14 +50,12 @@ export function createCardRepository(
     },
     update(id, input) {
       const { labelNames: _labelNames, ...cardFields } = input;
-      return (
-        db
-          .update(cards)
-          .set({ ...cardFields, updatedAt: new Date().toISOString() })
-          .where(eq(cards.id, id))
-          .returning()
-          .get() ?? undefined
-      );
+      return db
+        .update(cards)
+        .set({ ...cardFields, updatedAt: new Date().toISOString() })
+        .where(eq(cards.id, id))
+        .returning()
+        .get();
     },
     delete(id) {
       db.delete(cards).where(eq(cards.id, id)).run();

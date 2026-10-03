@@ -99,7 +99,8 @@ describe("createUserService", () => {
       const { service, userRepo } = setupService();
       const created = service.createUser("frank", "old-password");
       if (!created.ok) throw new Error("setup failed");
-      service.changePassword(created.data.id, "old-password", "new-password");
+      const result = service.changePassword(created.data.id, "old-password", "new-password");
+      expect(result.ok).toBe(true);
       expect(userRepo.findById(created.data.id)?.mustChangePassword).toBe(0);
     });
 
