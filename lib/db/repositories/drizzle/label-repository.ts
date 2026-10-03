@@ -26,16 +26,21 @@ export function createLabelRepository(
     findByCardIds(cardIds) {
       const result = new Map<number, Label[]>();
       if (cardIds.length === 0) return result;
-      const rows = db
-        .select({ cardId: cardLabels.cardId, id: labels.id, name: labels.name })
-        .from(cardLabels)
-        .innerJoin(labels, eq(cardLabels.labelId, labels.id))
-        .where(inArray(cardLabels.cardId, cardIds))
-        .all();
-      for (const row of rows) {
-        const list = result.get(row.cardId) ?? [];
-        list.push({ id: row.id, name: row.name });
-        result.set(row.cardId, list);
+      // SQLite のバインド変数上限(デフォルト 999)を超えないよう分割クエリ
+      const CHUNK_SIZE = 999;
+      for (let i = 0; i < cardIds.length; i += CHUNK_SIZE) {
+        const chunk = cardIds.slice(i, i + CHUNK_SIZE);
+        const rows = db
+          .select({ cardId: cardLabels.cardId, id: labels.id, name: labels.name })
+          .from(cardLabels)
+          .innerJoin(labels, eq(cardLabels.labelId, labels.id))
+          .where(inArray(cardLabels.cardId, chunk))
+          .all();
+        for (const row of rows) {
+          const list = result.get(row.cardId) ?? [];
+          list.push({ id: row.id, name: row.name });
+          result.set(row.cardId, list);
+        }
       }
       return result;
     },

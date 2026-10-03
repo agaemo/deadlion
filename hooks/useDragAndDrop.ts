@@ -25,6 +25,13 @@ const SENSOR_OPTIONS = { activationConstraint: { distance: 8 } };
 
 export type BoardColumn = Column & { cards: CardWithLabels[] };
 
+export function normalize(cols: BoardColumn[]): BoardColumn[] {
+  return cols.map((c) => ({
+    ...c,
+    cards: [...c.cards].sort((a, b) => a.position - b.position),
+  }));
+}
+
 type DraggedItem =
   | { type: "column"; columnId: number }
   | { type: "card"; cardId: number; fromColumnId: number };
@@ -58,6 +65,13 @@ export function useDragAndDrop({ columns, setColumns, initialColumns }: Props) {
 
   const sensors = useSensors(useSensor(PointerSensor, SENSOR_OPTIONS));
 
+  /**
+   * カード/列ドラッグの衝突検出戦略。
+   * - 列ドラッグ: 列コンテナのみを対象に closestCenter
+   * - カードドラッグ: pointerWithin → rectIntersection のフォールバックで候補を絞り込み、
+   *   同列内は closestCenter、クロスカラムはポインタがカード上にある場合のみカードをターゲットにする
+   *   （列の空白部分では列コンテナをターゲットにして末尾挿入を許可する）
+   */
   const collisionDetectionStrategy: CollisionDetection = useCallback((args) => {
     const activeType = args.active.data.current?.type;
 
@@ -177,9 +191,12 @@ export function useDragAndDrop({ columns, setColumns, initialColumns }: Props) {
 
       const reordered = arrayMove(columns, oldIndex, newIndex);
       setColumns(reordered);
-      reorderColumns({ orderedIds: reordered.map((c) => c.id) }).then(() => {
-        startTransition(() => router.refresh());
-      });
+      reorderColumns({ orderedIds: reordered.map((c) => c.id) })
+        .then(() => startTransition(() => router.refresh()))
+        .catch(() => {
+          setColumns(normalize(columns));
+          startTransition(() => router.refresh());
+        });
       return;
     }
 
@@ -212,9 +229,12 @@ export function useDragAndDrop({ columns, setColumns, initialColumns }: Props) {
       setColumns(finalColumns);
 
       const finalCol = finalColumns.find((c) => c.id === fromColumnId)!;
-      persistColumnPositions(finalCol.id, finalCol.cards).then(() => {
-        startTransition(() => router.refresh());
-      });
+      persistColumnPositions(finalCol.id, finalCol.cards)
+        .then(() => startTransition(() => router.refresh()))
+        .catch(() => {
+          setColumns(normalize(initialColumns));
+          startTransition(() => router.refresh());
+        });
     } else {
       const toCol = columns.find((c) => c.id === toColumnId);
       if (!toCol) return;
@@ -265,9 +285,12 @@ export function useDragAndDrop({ columns, setColumns, initialColumns }: Props) {
         moveCard({ id: cardId, toColumnId, toPosition: movedIdx }),
         ...destOtherTasks,
         ...srcTasks,
-      ]).then(() => {
-        startTransition(() => router.refresh());
-      });
+      ])
+        .then(() => startTransition(() => router.refresh()))
+        .catch(() => {
+          setColumns(normalize(initialColumns));
+          startTransition(() => router.refresh());
+        });
     }
   }
 
@@ -275,12 +298,7 @@ export function useDragAndDrop({ columns, setColumns, initialColumns }: Props) {
     setDraggedItem(null);
     setDragOverInfo(null);
     lastOverId.current = null;
-    setColumns(
-      initialColumns.map((c) => ({
-        ...c,
-        cards: [...c.cards].sort((a, b) => a.position - b.position),
-      })),
-    );
+    setColumns(normalize(initialColumns));
   }
 
   const draggedCard =

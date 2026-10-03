@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createColumn, deleteColumn, renameColumn } from "@/actions/columns";
 import type { BoardColumn } from "./useDragAndDrop";
@@ -11,6 +11,7 @@ type Props = {
 
 export function useColumnActions({ columns }: Props) {
   const router = useRouter();
+  const [, startTransition] = useTransition();
   const [newColumnName, setNewColumnName] = useState("");
   const [columnError, setColumnError] = useState<string | null>(null);
 
@@ -27,12 +28,15 @@ export function useColumnActions({ columns }: Props) {
     }
     setColumnError(null);
     setNewColumnName("");
-    router.refresh();
+    startTransition(() => router.refresh());
   }
 
   async function handleRenameColumn(columnId: number, name: string) {
-    await renameColumn({ id: columnId, name });
-    router.refresh();
+    try {
+      await renameColumn({ id: columnId, name });
+    } finally {
+      startTransition(() => router.refresh());
+    }
   }
 
   async function handleDeleteColumn(columnId: number) {
@@ -43,8 +47,11 @@ export function useColumnActions({ columns }: Props) {
         : "列を削除しますか？",
     );
     if (!confirmed) return;
-    await deleteColumn({ id: columnId });
-    router.refresh();
+    try {
+      await deleteColumn({ id: columnId });
+    } finally {
+      startTransition(() => router.refresh());
+    }
   }
 
   return {

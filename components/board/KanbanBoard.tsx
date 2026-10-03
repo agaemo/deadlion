@@ -9,20 +9,13 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import type { CardWithLabels, Column } from "@/lib/types";
 import { useColumnActions } from "@/hooks/useColumnActions";
-import { useDragAndDrop, type BoardColumn, type DragOverInfo } from "@/hooks/useDragAndDrop";
+import { normalize, useDragAndDrop, type BoardColumn, type DragOverInfo } from "@/hooks/useDragAndDrop";
 import { KanbanCard } from "./KanbanCard";
 import { KanbanColumn } from "./KanbanColumn";
 
 export type { DragOverInfo };
 
 type InitialColumn = Column & { cards: CardWithLabels[] };
-
-function normalize(cols: InitialColumn[]): BoardColumn[] {
-  return cols.map((c) => ({
-    ...c,
-    cards: [...c.cards].sort((a, b) => a.position - b.position),
-  }));
-}
 
 export function KanbanBoard({ initialColumns }: { initialColumns: InitialColumn[] }) {
   const router = useRouter();
