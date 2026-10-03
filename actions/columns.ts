@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { columnService } from "@/lib/services/registry";
 import type { Column, Result } from "@/lib/types";
@@ -10,12 +9,7 @@ import {
   renameColumnSchema,
   reorderColumnsSchema,
 } from "@/lib/validation/column";
-
-function revalidateAll() {
-  revalidatePath("/");
-  revalidatePath("/tasks");
-  revalidatePath("/gantt");
-}
+import { revalidateAll } from "./_revalidate";
 
 export async function createColumn(input: unknown): Promise<Result<Column>> {
   await requireAuth();
