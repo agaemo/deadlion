@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/on-session-start.js"
+            "command": "sh .claude/hooks/on-session-start.sh"
           }
         ]
       }
@@ -38,28 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/pre-bash.js"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/hooks/post-write.js"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/hooks/stop.js"
+            "command": "sh .claude/hooks/pre-bash.sh"
           }
         ]
       }
